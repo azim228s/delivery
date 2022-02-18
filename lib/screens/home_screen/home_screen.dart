@@ -28,7 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
           return Scaffold(
             appBar: AppBar(
               elevation: 0,
-              title: const Text("Заявки"),
+              title: const Text(
+                "Заявки",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               automaticallyImplyLeading: false,
               centerTitle: true,
             ),
@@ -36,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   buildProductCard(
-                    companyName: "haha",
+                    companyName: "Company",
                     transportation: 'truck',
                     price: '2500',
                     time: '10 hours',
@@ -118,6 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () {
                         //TODO: принять заявку
                       },
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(32), bottomLeft: Radius.circular(32)),
                       child: Container(
                         decoration: const BoxDecoration(
                           color: AppColors.mainColor,
@@ -146,13 +154,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget infoTile(
-      String expectedTime,
-      String price,
-      String truck
-      ) {
+  Widget infoTile(String expectedTime, String price, String truck) {
     return Row(
       children: [
+        Container(
+          height: 70,
+          width: 70,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.mainColor,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: SvgPicture.asset(
+            "assets/icons/ic_company.svg",
+          ),
+        ),
+        const SizedBox(
+          width: 8,
+        ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -35,6 +35,10 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
               elevation: 0,
               title: const Text(
                 "История заявок",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               centerTitle: true,
               automaticallyImplyLeading: false,
