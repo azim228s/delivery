@@ -15,8 +15,8 @@ class CustomButton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.black26,
+          decoration: const BoxDecoration(
+            color: AppColors.mainColor,
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: SizedBox(
@@ -24,8 +24,8 @@ class CustomButton extends StatelessWidget {
             child: Center(
               child: Text(
                 title,
-                style: TextStyle(
-                  color: Colors.black,
+                style: const TextStyle(
+                  color: AppColors.monoWhite,
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
                 ),

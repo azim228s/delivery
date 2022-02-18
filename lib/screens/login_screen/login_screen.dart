@@ -31,11 +31,24 @@ class _LoginScreenState extends State<LoginScreen> {
             top: MediaQuery.of(context).padding.top,
             right: 0,
             left: 0,
-            child: SizedBox(
+            child: Container(
+              padding: const EdgeInsets.only(top: 50, bottom: 140),
               height: 300,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    AppColors.mainColor,
+                    AppColors.mainColor.withOpacity(0.9),
+                    AppColors.mainColor.withOpacity(0.5),
+                    AppColors.monoWhite
+                  ],
+                ),
+              ),
               width: double.infinity,
-              // child: Image.asset("assets/images/logo_2.png"),
-              child: Container(color: AppColors.MONO_BLACK,),
+              child: Image.asset("assets/images/astana_hub.png",fit: BoxFit.fitHeight,),
             ),
           ),
           Positioned(
@@ -50,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     children: const [
                       Text(
-                        "Login",
+                        "Логин",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -89,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: const [
                       Padding(
                         child: Text(
-                          "Password",
+                          "Пароль",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -113,11 +126,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     children: const [
                       Text(
-                        "Forget password?",
+                        "Забыли пароль?",
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.orange),
+                            color: AppColors.mainColor),
                       ),
                     ],
                   ),
@@ -125,13 +138,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 100,
                   ),
                   CustomButton(
-                      title: "Login",
+                      title: "Войти",
                       onClick: () {
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
                                 builder: (context) => BottomNavBarScreen()));
                       }),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        "Создать аккаунт",
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.mainColor),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

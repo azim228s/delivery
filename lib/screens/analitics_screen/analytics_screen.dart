@@ -26,6 +26,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       builder: (context, snapshot) {
         return Scaffold(
           appBar: AppBar(
+            elevation: 0,
             title: const Text("Статистика"),
             automaticallyImplyLeading: false,
             centerTitle: true,
