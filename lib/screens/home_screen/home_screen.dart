@@ -1,8 +1,11 @@
 import 'package:delivery/constants/colors.dart';
+import 'package:delivery/constants/progress.dart';
+import 'package:delivery/models/event_model.dart';
 import 'package:delivery/screens/home_screen/home_presenter.dart';
 import 'package:delivery/screens/home_screen/home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -38,27 +41,23 @@ class _HomeScreenState extends State<HomeScreen> {
               automaticallyImplyLeading: false,
               centerTitle: true,
             ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  buildProductCard(
-                    companyName: "Company",
-                    transportation: 'truck',
-                    price: '2500',
-                    time: '10 hours',
-                  )
-                ],
-              ),
-            ),
+            // ignore: prefer_const_constructors
+            body: _presenter.model.isLoading
+                ? const ProgressCircular()
+                : SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        for (EventModel event in _presenter.offers)
+                          buildProductCard(eventModel: event)
+                      ],
+                    ),
+                  ),
           );
         });
   }
 
   Widget buildProductCard({
-    required String companyName,
-    required String price,
-    required String time,
-    required String transportation,
+    required EventModel eventModel,
   }) {
     return Padding(
       padding: const EdgeInsets.only(top: 18, left: 16, right: 16),
@@ -88,8 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Flexible(
                 flex: 6,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
+                  padding: const EdgeInsets.only(
+                    left: 15,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 12,
                       ),
                       Text(
-                        companyName,
+                        eventModel.deliveryCompanyId.toString() + " Company",
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -108,7 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(
                         height: 8,
                       ),
-                      infoTile(time, price, transportation),
+                      infoTile(
+                        DateFormat('MMMMd').format(eventModel.expectingDeliveryDate),
+                        eventModel.offeredPriceTenge.toString(),
+                        eventModel.weightKg.toString(),
+                      ),
                       const SizedBox(
                         height: 8,
                       ),
@@ -122,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        //TODO: принять заявку
+                        _presenter.acceptOffer(eventModel);
                       },
                       borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(32), bottomLeft: Radius.circular(32)),
@@ -154,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget infoTile(String expectedTime, String price, String truck) {
+  Widget infoTile(String expectedTime, String price, String weight) {
     return Row(
       children: [
         Container(
@@ -180,12 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.timer_rounded,
             ),
             infoRow(
-              price,
+              price + " KZT",
               Icons.attach_money_rounded,
             ),
             infoRow(
-              truck,
-              Icons.car_rental,
+              weight + " kg",
+              Icons.next_week_rounded,
             ),
           ],
         ),

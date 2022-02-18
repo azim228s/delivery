@@ -4,8 +4,6 @@ import 'package:delivery/screens/analitics_screen/analytics_view_model.dart';
 import 'package:delivery/screens/analitics_screen/widgets/graph.dart';
 import 'package:delivery/screens/analitics_screen/widgets/pie_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'dart:math' as math;
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({Key? key}) : super(key: key);
@@ -26,8 +24,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
   List<Color> colors = [AppColors.mainColor, AppColors.green, AppColors.monoRed, AppColors.violet];
 
   final List<Tab> myTabs = <Tab>[
-    const Tab(text: 'Месяц'),
-    const Tab(text: 'Год'),
+    const Tab(text: 'Дни'),
+    const Tab(text: 'Месяца'),
   ];
 
   late TabController _tabController;

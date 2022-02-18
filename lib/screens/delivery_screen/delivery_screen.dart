@@ -1,8 +1,19 @@
 import 'package:delivery/constants/colors.dart';
+import 'package:delivery/constants/progress.dart';
+import 'package:delivery/models/event_model.dart';
 import 'package:delivery/screens/delivery_screen/delivery_presenter.dart';
 import 'package:delivery/screens/delivery_screen/delivery_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+
+enum DeliverStatus { inProgress, delivered, failed }
+
+Map<int, DeliverStatus> fromIdToStatus = {
+  5: DeliverStatus.inProgress,
+  6: DeliverStatus.delivered,
+  7: DeliverStatus.failed,
+};
 
 class DeliveryScreen extends StatefulWidget {
   const DeliveryScreen({Key? key}) : super(key: key);
@@ -43,32 +54,22 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
               centerTitle: true,
               automaticallyImplyLeading: false,
             ),
-            body: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  buildProductCard(
-                    title: 'Компания 1',
-                    isDelivered: signs[0],
-                    index: 0,
+            body: _presenter.model.isLoading
+                ? const ProgressCircular()
+                : SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        for (EventModel event in _presenter.events)
+                          buildProductCard(eventModel: event),
+                      ],
+                    ),
                   ),
-                  buildProductCard(
-                    title: 'Компания 2',
-                    isDelivered: signs[1],
-                    index: 1,
-                  ),
-                ],
-              ),
-            ),
           );
         });
   }
 
-  Widget buildProductCard({
-    required String title,
-    required bool isDelivered,
-    required int index,
-  }) {
+  Widget buildProductCard({required EventModel eventModel}) {
     return Padding(
       padding: const EdgeInsets.only(top: 18, left: 16, right: 16),
       child: Card(
@@ -96,9 +97,11 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
               Flexible(
                 flex: 3,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.mainColor,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: eventModel.eventTypeId == 7
+                        ? AppColors.monoRed.withOpacity(0.5)
+                        : AppColors.mainColor,
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(32),
                       topLeft: Radius.circular(32),
                     ),
@@ -106,14 +109,21 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                   height: 160,
                   width: 100,
                   child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: isDelivered
-                          ? const Icon(
-                              Icons.check,
-                              size: 50,
-                              color: AppColors.monoWhite,
-                            )
-                          : SvgPicture.asset("assets/icons/ic_truck.svg")),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: eventModel.eventTypeId == 6
+                        ? const Icon(
+                            Icons.check,
+                            size: 75,
+                            color: AppColors.monoWhite,
+                          )
+                        : eventModel.eventTypeId == 5
+                            ? SvgPicture.asset("assets/icons/ic_truck.svg")
+                            : const Icon(
+                                Icons.cancel_outlined,
+                                size: 75,
+                                color: AppColors.monoWhite,
+                              ),
+                  ),
                 ),
               ),
               Flexible(
@@ -129,20 +139,20 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                         height: 12,
                       ),
                       Text(
-                        title,
+                        eventModel.deliveryCompanyId.toString() + " Company",
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                           color: AppColors.monoBlack,
                         ),
                       ),
                       const SizedBox(
                         height: 8,
                       ),
-                      isDelivered
+                      eventModel.eventTypeId == 6
                           ? Column(
                               children: [
-                                progressBar(true),
+                                progressBar(fromIdToStatus[eventModel.eventTypeId]!),
                                 SizedBox(
                                   height: 40,
                                   child: Row(
@@ -173,7 +183,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                                           ),
                                         ),
                                         onTap: () async {
-                                          //TODO: send status changed and remove orde from list
+                                          _presenter.confirmEvent(eventModel);
                                         },
                                       )
                                     ],
@@ -181,15 +191,24 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                                 ),
                               ],
                             )
-                          : Column(
-                              children: [
-                                progressBar(false),
-                                infoTile(
-                                  "5 hours",
-                                  "product",
+                          : eventModel.eventTypeId == 5
+                              ? Column(
+                                  children: [
+                                    progressBar(fromIdToStatus[eventModel.eventTypeId]!),
+                                    infoTile(
+                                      DateFormat('MMMMd').format(eventModel.expectingDeliveryDate),
+                                      eventModel.weightKg.toString(),
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  children: [
+                                    progressBar(fromIdToStatus[eventModel.eventTypeId]!),
+                                    cancelTile(
+                                      "Грузовик застрял в пробках Алматы",
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
                       const SizedBox(
                         height: 8,
                       ),
@@ -204,9 +223,9 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     );
   }
 
-  Widget progressBar(bool isDelivered) {
+  Widget progressBar(DeliverStatus status) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 16),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -229,9 +248,11 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                       height: 10,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
-                        color: isDelivered
-                            ? AppColors.mainColor
-                            : AppColors.monoBlack.withOpacity(0.5),
+                        color: status == DeliverStatus.failed
+                            ? AppColors.monoRed.withOpacity(0.5)
+                            : status == DeliverStatus.delivered
+                                ? AppColors.mainColor
+                                : AppColors.monoBlack.withOpacity(0.5),
                       ),
                     ),
                   ),
@@ -263,7 +284,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
                     child: SvgPicture.asset("assets/icons/ic_truck.svg"),
                   ),
                   const Spacer(),
-                  isDelivered
+                  status == DeliverStatus.delivered
                       ? Container(
                           height: 25,
                           width: 25,
@@ -290,18 +311,28 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Отправлен",
                 style: TextStyle(color: AppColors.mainColor, fontSize: 12),
               ),
-              Text(
+              Container(
+                height: 15,
+                width: 1,
+                color: AppColors.mainColor,
+              ),
+              const Text(
                 "В пути",
                 style: TextStyle(color: AppColors.mainColor, fontSize: 12),
               ),
+              Container(
+                height: 15,
+                width: 1,
+                color: AppColors.mainColor,
+              ),
               Text(
-                "Доставлен",
-                style: TextStyle(color: AppColors.mainColor, fontSize: 12),
+                status != DeliverStatus.failed ? "Доставлен" : "Не\nдоставлен",
+                style: const TextStyle(color: AppColors.mainColor, fontSize: 12),
               ),
             ],
           )
@@ -310,9 +341,16 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     );
   }
 
+  Widget cancelTile(
+    String reason,
+  ) {
+    return infoRow(
+        text: reason, icon: Icons.question_answer, color: AppColors.monoRed.withOpacity(0.5));
+  }
+
   Widget infoTile(
     String expectedTime,
-    String product,
+    String weight,
   ) {
     return Row(
       children: [
@@ -320,12 +358,12 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             infoRow(
-              expectedTime,
-              Icons.timer_rounded,
+              text: expectedTime,
+              icon: Icons.timer_rounded,
             ),
             infoRow(
-              product,
-              Icons.star_border_rounded,
+              text: weight,
+              icon: Icons.star_border_rounded,
             ),
           ],
         ),
@@ -333,21 +371,25 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     );
   }
 
-  Widget infoRow(String text, IconData icon) {
+  Widget infoRow(
+      {required String text, required IconData icon, Color color = AppColors.mainColor}) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
-          color: AppColors.mainColor,
+          color: color,
         ),
         const SizedBox(
           width: 8,
         ),
-        Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.mainColor,
-            fontSize: 16,
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 16,
+            ),
           ),
         )
       ],
