@@ -1,4 +1,4 @@
-import 'package:delivery/screens/analitics_screen/analitics_screen.dart';
+import 'package:delivery/screens/analitics_screen/analytics_screen.dart';
 import 'package:delivery/screens/delivery_screen/delivery_screen.dart';
 import 'package:delivery/screens/home_screen/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +14,11 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
 
   int currentTab = 0; // to keep track of active tab index
   final List<Widget> screens = [
-    HomeScreen(),
-    DeliveryScreen(),
-    AnaliticsScreen(),
+    const HomeScreen(),
+    const DeliveryScreen(),
+    const AnalyticsScreen(),
   ]; // to store nested tabs
-  Widget currentScreen = Scaffold();
+  Widget currentScreen = const Scaffold();
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -33,67 +33,39 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
+        fixedColor: Colors.blueAccent,
+        iconSize: 30,
+        unselectedItemColor: Colors.blueAccent,
+        type: BottomNavigationBarType.shifting,
         currentIndex: _selectedIndex,
-        //New
         onTap: _onItemTapped,
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  if (_selectedIndex == 0)
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 6,
-                      offset: Offset(0, 5), // changes position of shadow
-                    ),
-                ],
-              ),
-              child: Icon(Icons.home),
-              // child: SvgPicture.asset("assets/icons/home_ic.svg")),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  if (_selectedIndex == 1)
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 6,
-                      offset: Offset(0, 5), // changes position of shadow
-                    ),
-                ],
-              ),
-              child: Icon(Icons.list_alt),
-              // child: SvgPicture.asset("assets/icons/home_ic.svg")),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  if (_selectedIndex == 2)
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 6,
-                      offset: Offset(0, 5), // changes position of shadow
-                    ),
-                ],
-              ),
-              child: Icon(Icons.stacked_bar_chart),
-              // child: SvgPicture.asset("assets/icons/sell_ic.svg")),
-            ),
-            label: '',
-          ),
+          bottomBarItem(Icons.home, 0),
+          bottomBarItem(Icons.list_alt, 1),
+          bottomBarItem(Icons.stacked_bar_chart, 2),
         ],
       ),
+    );
+  }
+
+  BottomNavigationBarItem bottomBarItem(IconData icon, int index){
+    return BottomNavigationBarItem(
+      icon: AnimatedContainer(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: _selectedIndex == index ? Colors.blueAccent : Colors.transparent,
+        ),
+        curve: Curves.easeIn,
+        duration: const Duration(milliseconds: 300),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(
+            icon,
+            color: _selectedIndex == index ? Colors.white : Colors.blueAccent,
+          ),
+        ),
+      ),
+      label: '',
     );
   }
 }

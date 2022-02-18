@@ -23,18 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             height: double.infinity,
             width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  // AppColors.MONO_VIOLET.withOpacity(0.6),
-                  // AppColors.MONO_AVERAGE,
-                  // AppColors.MONO_AVERAGE2,
-                  // AppColors.PRIMARY_ORANGE,
-                ],
-                stops: [0.05, 0.3, 0.5, 0.7],
-              ),
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
           ),
